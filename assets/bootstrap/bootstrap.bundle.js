@@ -219,6 +219,8 @@
     return null;
   };
 
+  // Filtres ? Vérifier
+  
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {

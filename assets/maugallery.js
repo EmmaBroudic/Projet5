@@ -195,67 +195,96 @@
       next = imagesCollection[index] || imagesCollection[0];
       $(".lightboxImage").attr("src", $(next).attr("src"));
     },
+
+    // ouverture d'une modale pour la galerie d'images
     createLightBox(gallery, lightboxId, navigation) {
-      gallery.append(`<div class="modal fade" id="${
-        lightboxId ? lightboxId : "galleryLightbox"
-      }" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            ${
-                              navigation
-                                ? '<div class="mg-prev" style="cursor:pointer;position:absolute;top:50%;left:-15px;background:white;"><</div>'
-                                : '<span style="display:none;" />'
-                            }
-                            <img class="lightboxImage img-fluid" alt="Contenu de l'image affichée dans la modale au clique"/>
-                            ${
-                              navigation
-                                ? '<div class="mg-next" style="cursor:pointer;position:absolute;top:50%;right:-15px;background:white;}">></div>'
-                                : '<span style="display:none;" />'
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>`);
+      // Fonction pour créer une lightbox pour la galerie d'images
+    
+      gallery.append(`
+        <div class="modal fade" id="${lightboxId ? lightboxId : "galleryLightbox"}" tabindex="-1" role="dialog" aria-hidden="true">
+          <!-- La div représentant la lightbox -->
+          <div class="modal-dialog" role="document">
+            <!-- Div pour la boîte de dialogue -->
+            <div class="modal-content">
+              <!-- Div pour le contenu de la lightbox -->
+              <div class="modal-body">
+                <!-- Div pour le corps de la lightbox -->
+                ${
+                  navigation
+                    ? '<div class="mg-prev" style="cursor:pointer;position:absolute;top:50%;left:-15px;background:white;"><</div>'
+                    : '<span style="display:none;" />'
+                }
+                <!-- Bouton "précédent" ou élément vide en fonction de la valeur de navigation -->
+                <img class="lightboxImage img-fluid" alt="Contenu de l'image affichée dans la modale au clique"/>
+                <!-- Balise d'image pour afficher l'image -->
+                ${
+                  navigation
+                    ? '<div class="mg-next" style="cursor:pointer;position:absolute;top:50%;right:-15px;background:white;}">></div>'
+                    : '<span style="display:none;" />'
+                }
+                <!-- Bouton "suivant" ou élément vide en fonction de la valeur de navigation -->
+              </div>
+            </div>
+          </div>
+        </div>`);
     },
+
+    // filtres
     showItemTags(gallery, position, tags) {
+      // Crée une barre de navigation pour les étiquettes des images et l'ajoute à la page
       var tagItems =
-        '<li class="nav-item"><span class="nav-link active active-tag"  data-images-toggle="all">Tous</span></li>';
+        '<li class="nav-item"><span class="nav-link active active-tag" data-images-toggle="all">Tous</span></li>';
+      // Crée l'élément de liste pour l'option "Tous"
+    
+      // Parcourt les étiquettes et ajoute des éléments de liste pour chaque étiquette
       $.each(tags, function(index, value) {
         tagItems += `<li class="nav-item active">
-                <span class="nav-link"  data-images-toggle="${value}">${value}</span></li>`;
+                <span class="nav-link" data-images-toggle="${value}">${value}</span></li>`;
       });
+    
+      // Crée la barre de navigation complète en entourant les éléments de liste avec une balise ul
       var tagsRow = `<ul class="my-4 tags-bar nav nav-pills">${tagItems}</ul>`;
-
+    
+      // Ajoute la barre de navigation en fonction de la position spécifiée
       if (position === "bottom") {
-        gallery.append(tagsRow);
+        gallery.append(tagsRow); // Ajoute la barre de navigation à la fin de l'élément gallery
       } else if (position === "top") {
-        gallery.prepend(tagsRow);
+        gallery.prepend(tagsRow); // Ajoute la barre de navigation au début de l'élément gallery
       } else {
-        console.error(`Unknown tags position: ${position}`);
+        console.error(`Unknown tags position: ${position}`); // Affiche une erreur si la position spécifiée n'est ni "bottom" ni "top"
       }
     },
+    
     filterByTag() {
+      // Fonction pour filtrer les images par étiquette lorsqu'un élément de la barre de navigation est cliqué
+    
       if ($(this).hasClass("active-tag")) {
-        return;
+        return; // Si l'élément cliqué a déjà la classe "active-tag", ne fait rien
       }
-      $(".active-tag").removeClass("active active-tag");
-      $(this).addClass("active-tag");
+    
+      $(".active-tag").removeClass("active active-tag"); // Supprime la classe "active active-tag" de tous les éléments de la barre de navigation
+      $(this).addClass("active-tag"); // Ajoute la classe "active-tag" à l'élément cliqué
+    
+      var tag = $(this).data("images-toggle"); // Récupère la valeur de l'attribut data-images-toggle de l'élément cliqué
+    
+      // Ajoute la classe CSS ".nav-link.active" aux éléments .nav-link correspondant au filtre actif
+      $(".nav-link").removeClass("active");
+      $(`.nav-link[data-images-toggle="${tag}"]`).addClass("active");
 
-      var tag = $(this).data("images-toggle");
-
+      // Parcourt toutes les images de la galerie et affiche/masque les éléments parent correspondants
       $(".gallery-item").each(function() {
         $(this)
           .parents(".item-column")
-          .hide();
+          .hide(); // Masque l'élément parent de l'image
+    
         if (tag === "all") {
           $(this)
             .parents(".item-column")
-            .show(300);
+            .show(300); // Affiche l'élément parent si l'étiquette sélectionnée est "all"
         } else if ($(this).data("gallery-tag") === tag) {
           $(this)
             .parents(".item-column")
-            .show(300);
+            .show(300); // Affiche l'élément parent si l'étiquette de l'image correspond à l'étiquette sélectionnée
         }
       });
     }
