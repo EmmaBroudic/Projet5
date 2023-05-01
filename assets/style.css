@@ -2,6 +2,7 @@ body {
 	max-width: 1920px;
 	margin: auto;
 }
+
 * {
 	font-family: 'Inter';
 	font-style: normal;
@@ -90,10 +91,12 @@ article {
 	font-size: 14px;
 }
 
-/*
+
 #gallery {
-		min-height: 100vh; 
-}*/
+	margin-left: 75px;
+	margin-right: 75px;
+}
+
 .title{
 	text-align: center;
 	padding-block: 2em;
@@ -170,13 +173,15 @@ article {
 	bottom: 0;
 	left: 0;
 	z-index: 0;
+
 }
 
 #services .container {
 	justify-content: space-between;
 	display: flex;
 	padding : 2em 0;
-
+	padding-left: 70px;
+	padding-right: 70px;
 }
 
 .service {
