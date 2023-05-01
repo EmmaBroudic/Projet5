@@ -69,7 +69,7 @@ article {
 
 .picture img {
 	width: 100%;
-
+	height: auto;
 }
 #about-me {
 	flex: 2
@@ -246,6 +246,8 @@ input[type="submit"] {
 
 @media all and (max-width: 1180px) {
 	.picture {
+		width: auto;
+		height: auto;
 		flex : 2;
 	}
 	#about, #contact .container {
@@ -267,6 +269,7 @@ input[type="submit"] {
 	}
 	.picture {
 		width: 50%;
+		height: auto;
 	}
 	.picture.left::before {
 		width: 100%;
@@ -307,6 +310,8 @@ input[type="submit"] {
 		flex-direction: column;
 	}
 	#contact .picture.right {
+		width: auto;
+		height: auto;
 		margin-top: 1em;
 	}
 	.picture.right::before {
@@ -334,6 +339,7 @@ input[type="submit"] {
 		text-align: center;
 	}
 	.picture.left::before, .picture.right::before {
+		width: auto;
 		height: 150px;
 	}
 	#services .container {
@@ -351,6 +357,7 @@ input[type="submit"] {
 	}
 	.picture {
 		width: 80%;
+		height: auto;
 	}
 }
 
