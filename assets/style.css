@@ -42,7 +42,7 @@ body {
 	width: 20px;
 }
 
-#about {
+article {
 	display: flex;
 	background-color: #F6D2B8;
 	padding-inline: 100px;
