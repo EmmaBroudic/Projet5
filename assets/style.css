@@ -90,9 +90,10 @@ article {
 	font-size: 14px;
 }
 
+/*
 #gallery {
-	/*	min-height: 100vh; */
-}
+		min-height: 100vh; 
+}*/
 .title{
 	text-align: center;
 	padding-block: 2em;
