@@ -3065,7 +3065,7 @@
       state.placement = firstFittingPlacement;
       state.reset = true;
     }
-  } // eslint-disable-next-line import/no-unused-modules point d'arrêt 14
+  } // eslint-disable-next-line import/no-unused-modules
 
 
   const flip$1 = {
@@ -3475,8 +3475,6 @@
     strategy: 'absolute'
   };
 
-  // point d'arrêt 12
-
   function areValidElements() {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
@@ -3807,8 +3805,238 @@
     } // Public
 
 
+    toggle() {
+      return this._isShown() ? this.hide() : this.show();
+    }
 
-    // Static point d'arrêt 11
+    show() {
+      if (isDisabled(this._element) || this._isShown(this._menu)) {
+        return;
+      }
+
+      const relatedTarget = {
+        relatedTarget: this._element
+      };
+      const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$4, relatedTarget);
+
+      if (showEvent.defaultPrevented) {
+        return;
+      }
+
+      const parent = Dropdown.getParentFromElement(this._element); // Totally disable Popper for Dropdowns in Navbar
+
+      if (this._inNavbar) {
+        Manipulator.setDataAttribute(this._menu, 'popper', 'none');
+      } else {
+        this._createPopper(parent);
+      } // If this is a touch-enabled device we add extra
+      // empty mouseover listeners to the body's immediate children;
+      // only needed because of broken event delegation on iOS
+      // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
+
+
+      if ('ontouchstart' in document.documentElement && !parent.closest(SELECTOR_NAVBAR_NAV)) {
+        [].concat(...document.body.children).forEach(elem => EventHandler.on(elem, 'mouseover', noop));
+      }
+
+      this._element.focus();
+
+      this._element.setAttribute('aria-expanded', true);
+
+      this._menu.classList.add(CLASS_NAME_SHOW$6);
+
+      this._element.classList.add(CLASS_NAME_SHOW$6);
+
+      EventHandler.trigger(this._element, EVENT_SHOWN$4, relatedTarget);
+    }
+
+    hide() {
+      if (isDisabled(this._element) || !this._isShown(this._menu)) {
+        return;
+      }
+
+      const relatedTarget = {
+        relatedTarget: this._element
+      };
+
+      this._completeHide(relatedTarget);
+    }
+
+    dispose() {
+      if (this._popper) {
+        this._popper.destroy();
+      }
+
+      super.dispose();
+    }
+
+    update() {
+      this._inNavbar = this._detectNavbar();
+
+      if (this._popper) {
+        this._popper.update();
+      }
+    } // Private
+
+
+    _completeHide(relatedTarget) {
+      const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$4, relatedTarget);
+
+      if (hideEvent.defaultPrevented) {
+        return;
+      } // If this is a touch-enabled device we remove the extra
+      // empty mouseover listeners we added for iOS support
+
+
+      if ('ontouchstart' in document.documentElement) {
+        [].concat(...document.body.children).forEach(elem => EventHandler.off(elem, 'mouseover', noop));
+      }
+
+      if (this._popper) {
+        this._popper.destroy();
+      }
+
+      this._menu.classList.remove(CLASS_NAME_SHOW$6);
+
+      this._element.classList.remove(CLASS_NAME_SHOW$6);
+
+      this._element.setAttribute('aria-expanded', 'false');
+
+      Manipulator.removeDataAttribute(this._menu, 'popper');
+      EventHandler.trigger(this._element, EVENT_HIDDEN$4, relatedTarget);
+    }
+
+    _getConfig(config) {
+      config = { ...this.constructor.Default,
+        ...Manipulator.getDataAttributes(this._element),
+        ...config
+      };
+      typeCheckConfig(NAME$9, config, this.constructor.DefaultType);
+
+      if (typeof config.reference === 'object' && !isElement$1(config.reference) && typeof config.reference.getBoundingClientRect !== 'function') {
+        // Popper virtual elements require a getBoundingClientRect method
+        throw new TypeError(`${NAME$9.toUpperCase()}: Option "reference" provided type "object" without a required "getBoundingClientRect" method.`);
+      }
+
+      return config;
+    }
+
+    _createPopper(parent) {
+      if (typeof Popper === 'undefined') {
+        throw new TypeError('Bootstrap\'s dropdowns require Popper (https://popper.js.org)');
+      }
+
+      let referenceElement = this._element;
+
+      if (this._config.reference === 'parent') {
+        referenceElement = parent;
+      } else if (isElement$1(this._config.reference)) {
+        referenceElement = getElement(this._config.reference);
+      } else if (typeof this._config.reference === 'object') {
+        referenceElement = this._config.reference;
+      }
+
+      const popperConfig = this._getPopperConfig();
+
+      const isDisplayStatic = popperConfig.modifiers.find(modifier => modifier.name === 'applyStyles' && modifier.enabled === false);
+      this._popper = createPopper(referenceElement, this._menu, popperConfig);
+
+      if (isDisplayStatic) {
+        Manipulator.setDataAttribute(this._menu, 'popper', 'static');
+      }
+    }
+
+    _isShown(element = this._element) {
+      return element.classList.contains(CLASS_NAME_SHOW$6);
+    }
+
+    _getMenuElement() {
+      return SelectorEngine.next(this._element, SELECTOR_MENU)[0];
+    }
+
+    _getPlacement() {
+      const parentDropdown = this._element.parentNode;
+
+      if (parentDropdown.classList.contains(CLASS_NAME_DROPEND)) {
+        return PLACEMENT_RIGHT;
+      }
+
+      if (parentDropdown.classList.contains(CLASS_NAME_DROPSTART)) {
+        return PLACEMENT_LEFT;
+      } // We need to trim the value because custom properties can also include spaces
+
+
+      const isEnd = getComputedStyle(this._menu).getPropertyValue('--bs-position').trim() === 'end';
+
+      if (parentDropdown.classList.contains(CLASS_NAME_DROPUP)) {
+        return isEnd ? PLACEMENT_TOPEND : PLACEMENT_TOP;
+      }
+
+      return isEnd ? PLACEMENT_BOTTOMEND : PLACEMENT_BOTTOM;
+    }
+
+    _detectNavbar() {
+      return this._element.closest(`.${CLASS_NAME_NAVBAR}`) !== null;
+    }
+
+    _getOffset() {
+      const {
+        offset
+      } = this._config;
+
+      if (typeof offset === 'string') {
+        return offset.split(',').map(val => Number.parseInt(val, 10));
+      }
+
+      if (typeof offset === 'function') {
+        return popperData => offset(popperData, this._element);
+      }
+
+      return offset;
+    }
+
+    _getPopperConfig() {
+      const defaultBsPopperConfig = {
+        placement: this._getPlacement(),
+        modifiers: [{
+          name: 'preventOverflow',
+          options: {
+            boundary: this._config.boundary
+          }
+        }, {
+          name: 'offset',
+          options: {
+            offset: this._getOffset()
+          }
+        }]
+      }; // Disable Popper if we have a static display
+
+      if (this._config.display === 'static') {
+        defaultBsPopperConfig.modifiers = [{
+          name: 'applyStyles',
+          enabled: false
+        }];
+      }
+
+      return { ...defaultBsPopperConfig,
+        ...(typeof this._config.popperConfig === 'function' ? this._config.popperConfig(defaultBsPopperConfig) : this._config.popperConfig)
+      };
+    }
+
+    _selectMenuItem({
+      key,
+      target
+    }) {
+      const items = SelectorEngine.find(SELECTOR_VISIBLE_ITEMS, this._menu).filter(isVisible);
+
+      if (!items.length) {
+        return;
+      } // if target isn't included in items (e.g. when expanding the dropdown)
+      // allow cycling to get the last item in case key equals ARROW_UP_KEY
+
+
+      getNextActiveElement(items, target, key === ARROW_DOWN_KEY, !items.includes(target)).focus();
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -4773,7 +5001,134 @@
     } // Public
 
 
-    // Static point d'arrêt 8
+    toggle(relatedTarget) {
+      return this._isShown ? this.hide() : this.show(relatedTarget);
+    }
+
+    show(relatedTarget) {
+      if (this._isShown) {
+        return;
+      }
+
+      const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$2, {
+        relatedTarget
+      });
+
+      if (showEvent.defaultPrevented) {
+        return;
+      }
+
+      this._isShown = true;
+      this._element.style.visibility = 'visible';
+
+      this._backdrop.show();
+
+      if (!this._config.scroll) {
+        new ScrollBarHelper().hide();
+      }
+
+      this._element.removeAttribute('aria-hidden');
+
+      this._element.setAttribute('aria-modal', true);
+
+      this._element.setAttribute('role', 'dialog');
+
+      this._element.classList.add(CLASS_NAME_SHOW$3);
+
+      const completeCallBack = () => {
+        if (!this._config.scroll) {
+          this._focustrap.activate();
+        }
+
+        EventHandler.trigger(this._element, EVENT_SHOWN$2, {
+          relatedTarget
+        });
+      };
+
+      this._queueCallback(completeCallBack, this._element, true);
+    }
+
+    hide() {
+      if (!this._isShown) {
+        return;
+      }
+
+      const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$2);
+
+      if (hideEvent.defaultPrevented) {
+        return;
+      }
+
+      this._focustrap.deactivate();
+
+      this._element.blur();
+
+      this._isShown = false;
+
+      this._element.classList.remove(CLASS_NAME_SHOW$3);
+
+      this._backdrop.hide();
+
+      const completeCallback = () => {
+        this._element.setAttribute('aria-hidden', true);
+
+        this._element.removeAttribute('aria-modal');
+
+        this._element.removeAttribute('role');
+
+        this._element.style.visibility = 'hidden';
+
+        if (!this._config.scroll) {
+          new ScrollBarHelper().reset();
+        }
+
+        EventHandler.trigger(this._element, EVENT_HIDDEN$2);
+      };
+
+      this._queueCallback(completeCallback, this._element, true);
+    }
+
+    dispose() {
+      this._backdrop.dispose();
+
+      this._focustrap.deactivate();
+
+      super.dispose();
+    } // Private
+
+
+    _getConfig(config) {
+      config = { ...Default$4,
+        ...Manipulator.getDataAttributes(this._element),
+        ...(typeof config === 'object' ? config : {})
+      };
+      typeCheckConfig(NAME$5, config, DefaultType$4);
+      return config;
+    }
+
+    _initializeBackDrop() {
+      return new Backdrop({
+        className: CLASS_NAME_BACKDROP,
+        isVisible: this._config.backdrop,
+        isAnimated: true,
+        rootElement: this._element.parentNode,
+        clickCallback: () => this.hide()
+      });
+    }
+
+    _initializeFocusTrap() {
+      return new FocusTrap({
+        trapElement: this._element
+      });
+    }
+
+    _addEventListeners() {
+      EventHandler.on(this._element, EVENT_KEYDOWN_DISMISS, event => {
+        if (this._config.keyboard && event.key === ESCAPE_KEY) {
+          this.hide();
+        }
+      });
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -4915,9 +5270,41 @@
     u: [],
     ul: []
   };
+  function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
+    if (!unsafeHtml.length) {
+      return unsafeHtml;
+    }
 
+    if (sanitizeFn && typeof sanitizeFn === 'function') {
+      return sanitizeFn(unsafeHtml);
+    }
 
-  /** point arrêt 7
+    const domParser = new window.DOMParser();
+    const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html');
+    const elements = [].concat(...createdDocument.body.querySelectorAll('*'));
+
+    for (let i = 0, len = elements.length; i < len; i++) {
+      const element = elements[i];
+      const elementName = element.nodeName.toLowerCase();
+
+      if (!Object.keys(allowList).includes(elementName)) {
+        element.remove();
+        continue;
+      }
+
+      const attributeList = [].concat(...element.attributes);
+      const allowedAttributes = [].concat(allowList['*'] || [], allowList[elementName] || []);
+      attributeList.forEach(attribute => {
+        if (!allowedAttribute(attribute, allowedAttributes)) {
+          element.removeAttribute(attribute.nodeName);
+        }
+      });
+    }
+
+    return createdDocument.body.innerHTML;
+  }
+
+  /**
    * --------------------------------------------------------------------------
    * Bootstrap (v5.1.3): tooltip.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
@@ -5047,8 +5434,559 @@
     } // Public
 
 
+    enable() {
+      this._isEnabled = true;
+    }
 
- // Static point arrêt 6
+    disable() {
+      this._isEnabled = false;
+    }
+
+    toggleEnabled() {
+      this._isEnabled = !this._isEnabled;
+    }
+
+    toggle(event) {
+      if (!this._isEnabled) {
+        return;
+      }
+
+      if (event) {
+        const context = this._initializeOnDelegatedTarget(event);
+
+        context._activeTrigger.click = !context._activeTrigger.click;
+
+        if (context._isWithActiveTrigger()) {
+          context._enter(null, context);
+        } else {
+          context._leave(null, context);
+        }
+      } else {
+        if (this.getTipElement().classList.contains(CLASS_NAME_SHOW$2)) {
+          this._leave(null, this);
+
+          return;
+        }
+
+        this._enter(null, this);
+      }
+    }
+
+    dispose() {
+      clearTimeout(this._timeout);
+      EventHandler.off(this._element.closest(SELECTOR_MODAL), EVENT_MODAL_HIDE, this._hideModalHandler);
+
+      if (this.tip) {
+        this.tip.remove();
+      }
+
+      this._disposePopper();
+
+      super.dispose();
+    }
+
+    show() {
+      if (this._element.style.display === 'none') {
+        throw new Error('Please use show on visible elements');
+      }
+
+      if (!(this.isWithContent() && this._isEnabled)) {
+        return;
+      }
+
+      const showEvent = EventHandler.trigger(this._element, this.constructor.Event.SHOW);
+      const shadowRoot = findShadowRoot(this._element);
+      const isInTheDom = shadowRoot === null ? this._element.ownerDocument.documentElement.contains(this._element) : shadowRoot.contains(this._element);
+
+      if (showEvent.defaultPrevented || !isInTheDom) {
+        return;
+      } // A trick to recreate a tooltip in case a new title is given by using the NOT documented `data-bs-original-title`
+      // This will be removed later in favor of a `setContent` method
+
+
+      if (this.constructor.NAME === 'tooltip' && this.tip && this.getTitle() !== this.tip.querySelector(SELECTOR_TOOLTIP_INNER).innerHTML) {
+        this._disposePopper();
+
+        this.tip.remove();
+        this.tip = null;
+      }
+
+      const tip = this.getTipElement();
+      const tipId = getUID(this.constructor.NAME);
+      tip.setAttribute('id', tipId);
+
+      this._element.setAttribute('aria-describedby', tipId);
+
+      if (this._config.animation) {
+        tip.classList.add(CLASS_NAME_FADE$2);
+      }
+
+      const placement = typeof this._config.placement === 'function' ? this._config.placement.call(this, tip, this._element) : this._config.placement;
+
+      const attachment = this._getAttachment(placement);
+
+      this._addAttachmentClass(attachment);
+
+      const {
+        container
+      } = this._config;
+      Data.set(tip, this.constructor.DATA_KEY, this);
+
+      if (!this._element.ownerDocument.documentElement.contains(this.tip)) {
+        container.append(tip);
+        EventHandler.trigger(this._element, this.constructor.Event.INSERTED);
+      }
+
+      if (this._popper) {
+        this._popper.update();
+      } else {
+        this._popper = createPopper(this._element, tip, this._getPopperConfig(attachment));
+      }
+
+      tip.classList.add(CLASS_NAME_SHOW$2);
+
+      const customClass = this._resolvePossibleFunction(this._config.customClass);
+
+      if (customClass) {
+        tip.classList.add(...customClass.split(' '));
+      } // If this is a touch-enabled device we add extra
+      // empty mouseover listeners to the body's immediate children;
+      // only needed because of broken event delegation on iOS
+      // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
+
+
+      if ('ontouchstart' in document.documentElement) {
+        [].concat(...document.body.children).forEach(element => {
+          EventHandler.on(element, 'mouseover', noop);
+        });
+      }
+
+      const complete = () => {
+        const prevHoverState = this._hoverState;
+        this._hoverState = null;
+        EventHandler.trigger(this._element, this.constructor.Event.SHOWN);
+
+        if (prevHoverState === HOVER_STATE_OUT) {
+          this._leave(null, this);
+        }
+      };
+
+      const isAnimated = this.tip.classList.contains(CLASS_NAME_FADE$2);
+
+      this._queueCallback(complete, this.tip, isAnimated);
+    }
+
+    hide() {
+      if (!this._popper) {
+        return;
+      }
+
+      const tip = this.getTipElement();
+
+      const complete = () => {
+        if (this._isWithActiveTrigger()) {
+          return;
+        }
+
+        if (this._hoverState !== HOVER_STATE_SHOW) {
+          tip.remove();
+        }
+
+        this._cleanTipClass();
+
+        this._element.removeAttribute('aria-describedby');
+
+        EventHandler.trigger(this._element, this.constructor.Event.HIDDEN);
+
+        this._disposePopper();
+      };
+
+      const hideEvent = EventHandler.trigger(this._element, this.constructor.Event.HIDE);
+
+      if (hideEvent.defaultPrevented) {
+        return;
+      }
+
+      tip.classList.remove(CLASS_NAME_SHOW$2); // If this is a touch-enabled device we remove the extra
+      // empty mouseover listeners we added for iOS support
+
+      if ('ontouchstart' in document.documentElement) {
+        [].concat(...document.body.children).forEach(element => EventHandler.off(element, 'mouseover', noop));
+      }
+
+      this._activeTrigger[TRIGGER_CLICK] = false;
+      this._activeTrigger[TRIGGER_FOCUS] = false;
+      this._activeTrigger[TRIGGER_HOVER] = false;
+      const isAnimated = this.tip.classList.contains(CLASS_NAME_FADE$2);
+
+      this._queueCallback(complete, this.tip, isAnimated);
+
+      this._hoverState = '';
+    }
+
+    update() {
+      if (this._popper !== null) {
+        this._popper.update();
+      }
+    } // Protected
+
+
+    isWithContent() {
+      return Boolean(this.getTitle());
+    }
+
+    getTipElement() {
+      if (this.tip) {
+        return this.tip;
+      }
+
+      const element = document.createElement('div');
+      element.innerHTML = this._config.template;
+      const tip = element.children[0];
+      this.setContent(tip);
+      tip.classList.remove(CLASS_NAME_FADE$2, CLASS_NAME_SHOW$2);
+      this.tip = tip;
+      return this.tip;
+    }
+
+    setContent(tip) {
+      this._sanitizeAndSetContent(tip, this.getTitle(), SELECTOR_TOOLTIP_INNER);
+    }
+
+    _sanitizeAndSetContent(template, content, selector) {
+      const templateElement = SelectorEngine.findOne(selector, template);
+
+      if (!content && templateElement) {
+        templateElement.remove();
+        return;
+      } // we use append for html objects to maintain js events
+
+
+      this.setElementContent(templateElement, content);
+    }
+
+    setElementContent(element, content) {
+      if (element === null) {
+        return;
+      }
+
+      if (isElement$1(content)) {
+        content = getElement(content); // content is a DOM node or a jQuery
+
+        if (this._config.html) {
+          if (content.parentNode !== element) {
+            element.innerHTML = '';
+            element.append(content);
+          }
+        } else {
+          element.textContent = content.textContent;
+        }
+
+        return;
+      }
+
+      if (this._config.html) {
+        if (this._config.sanitize) {
+          content = sanitizeHtml(content, this._config.allowList, this._config.sanitizeFn);
+        }
+
+        element.innerHTML = content;
+      } else {
+        element.textContent = content;
+      }
+    }
+
+    getTitle() {
+      const title = this._element.getAttribute('data-bs-original-title') || this._config.title;
+
+      return this._resolvePossibleFunction(title);
+    }
+
+    updateAttachment(attachment) {
+      if (attachment === 'right') {
+        return 'end';
+      }
+
+      if (attachment === 'left') {
+        return 'start';
+      }
+
+      return attachment;
+    } // Private
+
+
+    _initializeOnDelegatedTarget(event, context) {
+      return context || this.constructor.getOrCreateInstance(event.delegateTarget, this._getDelegateConfig());
+    }
+
+    _getOffset() {
+      const {
+        offset
+      } = this._config;
+
+      if (typeof offset === 'string') {
+        return offset.split(',').map(val => Number.parseInt(val, 10));
+      }
+
+      if (typeof offset === 'function') {
+        return popperData => offset(popperData, this._element);
+      }
+
+      return offset;
+    }
+
+    _resolvePossibleFunction(content) {
+      return typeof content === 'function' ? content.call(this._element) : content;
+    }
+
+    _getPopperConfig(attachment) {
+      const defaultBsPopperConfig = {
+        placement: attachment,
+        modifiers: [{
+          name: 'flip',
+          options: {
+            fallbackPlacements: this._config.fallbackPlacements
+          }
+        }, {
+          name: 'offset',
+          options: {
+            offset: this._getOffset()
+          }
+        }, {
+          name: 'preventOverflow',
+          options: {
+            boundary: this._config.boundary
+          }
+        }, {
+          name: 'arrow',
+          options: {
+            element: `.${this.constructor.NAME}-arrow`
+          }
+        }, {
+          name: 'onChange',
+          enabled: true,
+          phase: 'afterWrite',
+          fn: data => this._handlePopperPlacementChange(data)
+        }],
+        onFirstUpdate: data => {
+          if (data.options.placement !== data.placement) {
+            this._handlePopperPlacementChange(data);
+          }
+        }
+      };
+      return { ...defaultBsPopperConfig,
+        ...(typeof this._config.popperConfig === 'function' ? this._config.popperConfig(defaultBsPopperConfig) : this._config.popperConfig)
+      };
+    }
+
+    _addAttachmentClass(attachment) {
+      this.getTipElement().classList.add(`${this._getBasicClassPrefix()}-${this.updateAttachment(attachment)}`);
+    }
+
+    _getAttachment(placement) {
+      return AttachmentMap[placement.toUpperCase()];
+    }
+
+    _setListeners() {
+      const triggers = this._config.trigger.split(' ');
+
+      triggers.forEach(trigger => {
+        if (trigger === 'click') {
+          EventHandler.on(this._element, this.constructor.Event.CLICK, this._config.selector, event => this.toggle(event));
+        } else if (trigger !== TRIGGER_MANUAL) {
+          const eventIn = trigger === TRIGGER_HOVER ? this.constructor.Event.MOUSEENTER : this.constructor.Event.FOCUSIN;
+          const eventOut = trigger === TRIGGER_HOVER ? this.constructor.Event.MOUSELEAVE : this.constructor.Event.FOCUSOUT;
+          EventHandler.on(this._element, eventIn, this._config.selector, event => this._enter(event));
+          EventHandler.on(this._element, eventOut, this._config.selector, event => this._leave(event));
+        }
+      });
+
+      this._hideModalHandler = () => {
+        if (this._element) {
+          this.hide();
+        }
+      };
+
+      EventHandler.on(this._element.closest(SELECTOR_MODAL), EVENT_MODAL_HIDE, this._hideModalHandler);
+
+      if (this._config.selector) {
+        this._config = { ...this._config,
+          trigger: 'manual',
+          selector: ''
+        };
+      } else {
+        this._fixTitle();
+      }
+    }
+
+    _fixTitle() {
+      const title = this._element.getAttribute('title');
+
+      const originalTitleType = typeof this._element.getAttribute('data-bs-original-title');
+
+      if (title || originalTitleType !== 'string') {
+        this._element.setAttribute('data-bs-original-title', title || '');
+
+        if (title && !this._element.getAttribute('aria-label') && !this._element.textContent) {
+          this._element.setAttribute('aria-label', title);
+        }
+
+        this._element.setAttribute('title', '');
+      }
+    }
+
+    _enter(event, context) {
+      context = this._initializeOnDelegatedTarget(event, context);
+
+      if (event) {
+        context._activeTrigger[event.type === 'focusin' ? TRIGGER_FOCUS : TRIGGER_HOVER] = true;
+      }
+
+      if (context.getTipElement().classList.contains(CLASS_NAME_SHOW$2) || context._hoverState === HOVER_STATE_SHOW) {
+        context._hoverState = HOVER_STATE_SHOW;
+        return;
+      }
+
+      clearTimeout(context._timeout);
+      context._hoverState = HOVER_STATE_SHOW;
+
+      if (!context._config.delay || !context._config.delay.show) {
+        context.show();
+        return;
+      }
+
+      context._timeout = setTimeout(() => {
+        if (context._hoverState === HOVER_STATE_SHOW) {
+          context.show();
+        }
+      }, context._config.delay.show);
+    }
+
+    _leave(event, context) {
+      context = this._initializeOnDelegatedTarget(event, context);
+
+      if (event) {
+        context._activeTrigger[event.type === 'focusout' ? TRIGGER_FOCUS : TRIGGER_HOVER] = context._element.contains(event.relatedTarget);
+      }
+
+      if (context._isWithActiveTrigger()) {
+        return;
+      }
+
+      clearTimeout(context._timeout);
+      context._hoverState = HOVER_STATE_OUT;
+
+      if (!context._config.delay || !context._config.delay.hide) {
+        context.hide();
+        return;
+      }
+
+      context._timeout = setTimeout(() => {
+        if (context._hoverState === HOVER_STATE_OUT) {
+          context.hide();
+        }
+      }, context._config.delay.hide);
+    }
+
+    _isWithActiveTrigger() {
+      for (const trigger in this._activeTrigger) {
+        if (this._activeTrigger[trigger]) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    _getConfig(config) {
+      const dataAttributes = Manipulator.getDataAttributes(this._element);
+      Object.keys(dataAttributes).forEach(dataAttr => {
+        if (DISALLOWED_ATTRIBUTES.has(dataAttr)) {
+          delete dataAttributes[dataAttr];
+        }
+      });
+      config = { ...this.constructor.Default,
+        ...dataAttributes,
+        ...(typeof config === 'object' && config ? config : {})
+      };
+      config.container = config.container === false ? document.body : getElement(config.container);
+
+      if (typeof config.delay === 'number') {
+        config.delay = {
+          show: config.delay,
+          hide: config.delay
+        };
+      }
+
+      if (typeof config.title === 'number') {
+        config.title = config.title.toString();
+      }
+
+      if (typeof config.content === 'number') {
+        config.content = config.content.toString();
+      }
+
+      typeCheckConfig(NAME$4, config, this.constructor.DefaultType);
+
+      if (config.sanitize) {
+        config.template = sanitizeHtml(config.template, config.allowList, config.sanitizeFn);
+      }
+
+      return config;
+    }
+
+    _getDelegateConfig() {
+      const config = {};
+
+      for (const key in this._config) {
+        if (this.constructor.Default[key] !== this._config[key]) {
+          config[key] = this._config[key];
+        }
+      } // In the future can be replaced with:
+      // const keysWithDifferentValues = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
+      // `Object.fromEntries(keysWithDifferentValues)`
+
+
+      return config;
+    }
+
+    _cleanTipClass() {
+      const tip = this.getTipElement();
+      const basicClassPrefixRegex = new RegExp(`(^|\\s)${this._getBasicClassPrefix()}\\S+`, 'g');
+      const tabClass = tip.getAttribute('class').match(basicClassPrefixRegex);
+
+      if (tabClass !== null && tabClass.length > 0) {
+        tabClass.map(token => token.trim()).forEach(tClass => tip.classList.remove(tClass));
+      }
+    }
+
+    _getBasicClassPrefix() {
+      return CLASS_PREFIX$1;
+    }
+
+    _handlePopperPlacementChange(popperData) {
+      const {
+        state
+      } = popperData;
+
+      if (!state) {
+        return;
+      }
+
+      this.tip = state.elements.popper;
+
+      this._cleanTipClass();
+
+      this._addAttachmentClass(this._getAttachment(state.placement));
+    }
+
+    _disposePopper() {
+      if (this._popper) {
+        this._popper.destroy();
+
+        this._popper = null;
+      }
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -5141,10 +6079,24 @@
     } // Overrides
 
 
- // Private
+    isWithContent() {
+      return this.getTitle() || this._getContent();
+    }
+
+    setContent(tip) {
+      this._sanitizeAndSetContent(tip, this.getTitle(), SELECTOR_TITLE);
+
+      this._sanitizeAndSetContent(tip, this._getContent(), SELECTOR_CONTENT);
+    } // Private
 
 
-// Static
+    _getContent() {
+      return this._resolvePossibleFunction(this._config.content);
+    }
+
+    _getBasicClassPrefix() {
+      return CLASS_PREFIX;
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -5232,7 +6184,7 @@
       this.refresh();
 
       this._process();
-    } // Getters point arrêt 5
+    } // Getters
 
 
     static get Default() {
@@ -5242,9 +6194,133 @@
     static get NAME() {
       return NAME$2;
     } // Public
- // Private
 
-// Static // point arrêt 4
+
+    refresh() {
+      const autoMethod = this._scrollElement === this._scrollElement.window ? METHOD_OFFSET : METHOD_POSITION;
+      const offsetMethod = this._config.method === 'auto' ? autoMethod : this._config.method;
+      const offsetBase = offsetMethod === METHOD_POSITION ? this._getScrollTop() : 0;
+      this._offsets = [];
+      this._targets = [];
+      this._scrollHeight = this._getScrollHeight();
+      const targets = SelectorEngine.find(SELECTOR_LINK_ITEMS, this._config.target);
+      targets.map(element => {
+        const targetSelector = getSelectorFromElement(element);
+        const target = targetSelector ? SelectorEngine.findOne(targetSelector) : null;
+
+        if (target) {
+          const targetBCR = target.getBoundingClientRect();
+
+          if (targetBCR.width || targetBCR.height) {
+            return [Manipulator[offsetMethod](target).top + offsetBase, targetSelector];
+          }
+        }
+
+        return null;
+      }).filter(item => item).sort((a, b) => a[0] - b[0]).forEach(item => {
+        this._offsets.push(item[0]);
+
+        this._targets.push(item[1]);
+      });
+    }
+
+    dispose() {
+      EventHandler.off(this._scrollElement, EVENT_KEY$2);
+      super.dispose();
+    } // Private
+
+
+    _getConfig(config) {
+      config = { ...Default$1,
+        ...Manipulator.getDataAttributes(this._element),
+        ...(typeof config === 'object' && config ? config : {})
+      };
+      config.target = getElement(config.target) || document.documentElement;
+      typeCheckConfig(NAME$2, config, DefaultType$1);
+      return config;
+    }
+
+    _getScrollTop() {
+      return this._scrollElement === window ? this._scrollElement.pageYOffset : this._scrollElement.scrollTop;
+    }
+
+    _getScrollHeight() {
+      return this._scrollElement.scrollHeight || Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    }
+
+    _getOffsetHeight() {
+      return this._scrollElement === window ? window.innerHeight : this._scrollElement.getBoundingClientRect().height;
+    }
+
+    _process() {
+      const scrollTop = this._getScrollTop() + this._config.offset;
+
+      const scrollHeight = this._getScrollHeight();
+
+      const maxScroll = this._config.offset + scrollHeight - this._getOffsetHeight();
+
+      if (this._scrollHeight !== scrollHeight) {
+        this.refresh();
+      }
+
+      if (scrollTop >= maxScroll) {
+        const target = this._targets[this._targets.length - 1];
+
+        if (this._activeTarget !== target) {
+          this._activate(target);
+        }
+
+        return;
+      }
+
+      if (this._activeTarget && scrollTop < this._offsets[0] && this._offsets[0] > 0) {
+        this._activeTarget = null;
+
+        this._clear();
+
+        return;
+      }
+
+      for (let i = this._offsets.length; i--;) {
+        const isActiveTarget = this._activeTarget !== this._targets[i] && scrollTop >= this._offsets[i] && (typeof this._offsets[i + 1] === 'undefined' || scrollTop < this._offsets[i + 1]);
+
+        if (isActiveTarget) {
+          this._activate(this._targets[i]);
+        }
+      }
+    }
+
+    _activate(target) {
+      this._activeTarget = target;
+
+      this._clear();
+
+      const queries = SELECTOR_LINK_ITEMS.split(',').map(selector => `${selector}[data-bs-target="${target}"],${selector}[href="${target}"]`);
+      const link = SelectorEngine.findOne(queries.join(','), this._config.target);
+      link.classList.add(CLASS_NAME_ACTIVE$1);
+
+      if (link.classList.contains(CLASS_NAME_DROPDOWN_ITEM)) {
+        SelectorEngine.findOne(SELECTOR_DROPDOWN_TOGGLE$1, link.closest(SELECTOR_DROPDOWN$1)).classList.add(CLASS_NAME_ACTIVE$1);
+      } else {
+        SelectorEngine.parents(link, SELECTOR_NAV_LIST_GROUP$1).forEach(listGroup => {
+          // Set triggered links parents as active
+          // With both <ul> and <nav> markup a parent is the previous sibling of any nav ancestor
+          SelectorEngine.prev(listGroup, `${SELECTOR_NAV_LINKS}, ${SELECTOR_LIST_ITEMS}`).forEach(item => item.classList.add(CLASS_NAME_ACTIVE$1)); // Handle special case when .nav-link is inside .nav-item
+
+          SelectorEngine.prev(listGroup, SELECTOR_NAV_ITEMS).forEach(navItem => {
+            SelectorEngine.children(navItem, SELECTOR_NAV_LINKS).forEach(item => item.classList.add(CLASS_NAME_ACTIVE$1));
+          });
+        });
+      }
+
+      EventHandler.trigger(this._scrollElement, EVENT_ACTIVATE, {
+        relatedTarget: target
+      });
+    }
+
+    _clear() {
+      SelectorEngine.find(SELECTOR_LINK_ITEMS, this._config.target).filter(node => node.classList.contains(CLASS_NAME_ACTIVE$1)).forEach(node => node.classList.remove(CLASS_NAME_ACTIVE$1));
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -5264,7 +6340,6 @@
     }
 
   }
-  
   /**
    * ------------------------------------------------------------------------
    * Data Api implementation
@@ -5328,10 +6403,115 @@
       return NAME$1;
     } // Public
 
-// Private
+
+    show() {
+      if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && this._element.classList.contains(CLASS_NAME_ACTIVE)) {
+        return;
+      }
+
+      let previous;
+      const target = getElementFromSelector(this._element);
+
+      const listElement = this._element.closest(SELECTOR_NAV_LIST_GROUP);
+
+      if (listElement) {
+        const itemSelector = listElement.nodeName === 'UL' || listElement.nodeName === 'OL' ? SELECTOR_ACTIVE_UL : SELECTOR_ACTIVE;
+        previous = SelectorEngine.find(itemSelector, listElement);
+        previous = previous[previous.length - 1];
+      }
+
+      const hideEvent = previous ? EventHandler.trigger(previous, EVENT_HIDE$1, {
+        relatedTarget: this._element
+      }) : null;
+      const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$1, {
+        relatedTarget: previous
+      });
+
+      if (showEvent.defaultPrevented || hideEvent !== null && hideEvent.defaultPrevented) {
+        return;
+      }
+
+      this._activate(this._element, listElement);
+
+      const complete = () => {
+        EventHandler.trigger(previous, EVENT_HIDDEN$1, {
+          relatedTarget: this._element
+        });
+        EventHandler.trigger(this._element, EVENT_SHOWN$1, {
+          relatedTarget: previous
+        });
+      };
+
+      if (target) {
+        this._activate(target, target.parentNode, complete);
+      } else {
+        complete();
+      }
+    } // Private
 
 
-    // Static arrêt 3
+    _activate(element, container, callback) {
+      const activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ? SelectorEngine.find(SELECTOR_ACTIVE_UL, container) : SelectorEngine.children(container, SELECTOR_ACTIVE);
+      const active = activeElements[0];
+      const isTransitioning = callback && active && active.classList.contains(CLASS_NAME_FADE$1);
+
+      const complete = () => this._transitionComplete(element, active, callback);
+
+      if (active && isTransitioning) {
+        active.classList.remove(CLASS_NAME_SHOW$1);
+
+        this._queueCallback(complete, element, true);
+      } else {
+        complete();
+      }
+    }
+
+    _transitionComplete(element, active, callback) {
+      if (active) {
+        active.classList.remove(CLASS_NAME_ACTIVE);
+        const dropdownChild = SelectorEngine.findOne(SELECTOR_DROPDOWN_ACTIVE_CHILD, active.parentNode);
+
+        if (dropdownChild) {
+          dropdownChild.classList.remove(CLASS_NAME_ACTIVE);
+        }
+
+        if (active.getAttribute('role') === 'tab') {
+          active.setAttribute('aria-selected', false);
+        }
+      }
+
+      element.classList.add(CLASS_NAME_ACTIVE);
+
+      if (element.getAttribute('role') === 'tab') {
+        element.setAttribute('aria-selected', true);
+      }
+
+      reflow(element);
+
+      if (element.classList.contains(CLASS_NAME_FADE$1)) {
+        element.classList.add(CLASS_NAME_SHOW$1);
+      }
+
+      let parent = element.parentNode;
+
+      if (parent && parent.nodeName === 'LI') {
+        parent = parent.parentNode;
+      }
+
+      if (parent && parent.classList.contains(CLASS_NAME_DROPDOWN_MENU)) {
+        const dropdownElement = element.closest(SELECTOR_DROPDOWN);
+
+        if (dropdownElement) {
+          SelectorEngine.find(SELECTOR_DROPDOWN_TOGGLE, dropdownElement).forEach(dropdown => dropdown.classList.add(CLASS_NAME_ACTIVE));
+        }
+
+        element.setAttribute('aria-expanded', true);
+      }
+
+      if (callback) {
+        callback();
+      }
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -5443,15 +6623,158 @@
 
     static get NAME() {
       return NAME;
-    } // Public// Private
+    } // Public
 
-    
-    // Static arrêt 2
+
+    show() {
+      const showEvent = EventHandler.trigger(this._element, EVENT_SHOW);
+
+      if (showEvent.defaultPrevented) {
+        return;
+      }
+
+      this._clearTimeout();
+
+      if (this._config.animation) {
+        this._element.classList.add(CLASS_NAME_FADE);
+      }
+
+      const complete = () => {
+        this._element.classList.remove(CLASS_NAME_SHOWING);
+
+        EventHandler.trigger(this._element, EVENT_SHOWN);
+
+        this._maybeScheduleHide();
+      };
+
+      this._element.classList.remove(CLASS_NAME_HIDE); // @deprecated
+
+
+      reflow(this._element);
+
+      this._element.classList.add(CLASS_NAME_SHOW);
+
+      this._element.classList.add(CLASS_NAME_SHOWING);
+
+      this._queueCallback(complete, this._element, this._config.animation);
+    }
+
+    hide() {
+      if (!this._element.classList.contains(CLASS_NAME_SHOW)) {
+        return;
+      }
+
+      const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE);
+
+      if (hideEvent.defaultPrevented) {
+        return;
+      }
+
+      const complete = () => {
+        this._element.classList.add(CLASS_NAME_HIDE); // @deprecated
+
+
+        this._element.classList.remove(CLASS_NAME_SHOWING);
+
+        this._element.classList.remove(CLASS_NAME_SHOW);
+
+        EventHandler.trigger(this._element, EVENT_HIDDEN);
+      };
+
+      this._element.classList.add(CLASS_NAME_SHOWING);
+
+      this._queueCallback(complete, this._element, this._config.animation);
+    }
+
+    dispose() {
+      this._clearTimeout();
+
+      if (this._element.classList.contains(CLASS_NAME_SHOW)) {
+        this._element.classList.remove(CLASS_NAME_SHOW);
+      }
+
+      super.dispose();
+    } // Private
+
+
+    _getConfig(config) {
+      config = { ...Default,
+        ...Manipulator.getDataAttributes(this._element),
+        ...(typeof config === 'object' && config ? config : {})
+      };
+      typeCheckConfig(NAME, config, this.constructor.DefaultType);
+      return config;
+    }
+
+    _maybeScheduleHide() {
+      if (!this._config.autohide) {
+        return;
+      }
+
+      if (this._hasMouseInteraction || this._hasKeyboardInteraction) {
+        return;
+      }
+
+      this._timeout = setTimeout(() => {
+        this.hide();
+      }, this._config.delay);
+    }
+
+    _onInteraction(event, isInteracting) {
+      switch (event.type) {
+        case 'mouseover':
+        case 'mouseout':
+          this._hasMouseInteraction = isInteracting;
+          break;
+
+        case 'focusin':
+        case 'focusout':
+          this._hasKeyboardInteraction = isInteracting;
+          break;
+      }
+
+      if (isInteracting) {
+        this._clearTimeout();
+
+        return;
+      }
+
+      const nextElement = event.relatedTarget;
+
+      if (this._element === nextElement || this._element.contains(nextElement)) {
+        return;
+      }
+
+      this._maybeScheduleHide();
+    }
+
+    _setListeners() {
+      EventHandler.on(this._element, EVENT_MOUSEOVER, event => this._onInteraction(event, true));
+      EventHandler.on(this._element, EVENT_MOUSEOUT, event => this._onInteraction(event, false));
+      EventHandler.on(this._element, EVENT_FOCUSIN, event => this._onInteraction(event, true));
+      EventHandler.on(this._element, EVENT_FOCUSOUT, event => this._onInteraction(event, false));
+    }
+
+    _clearTimeout() {
+      clearTimeout(this._timeout);
+      this._timeout = null;
+    } // Static
 
 
     static jQueryInterface(config) {
+      return this.each(function () {
+        const data = Toast.getOrCreateInstance(this, config);
+
+        if (typeof config === 'string') {
+          if (typeof data[config] === 'undefined') {
+            throw new TypeError(`No method named "${config}"`);
+          }
+
+          data[config](this);
+        }
+      });
     }
-// arrêt 1
+
   }
 
   enableDismissTrigger(Toast);
