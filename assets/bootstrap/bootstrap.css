@@ -6696,6 +6696,8 @@ textarea.form-control-lg {
 
 .d-block {
   display: block !important;
+  width: 259px;
+  height: 259px;
 }
 
 .d-grid {
