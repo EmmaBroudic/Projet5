@@ -199,6 +199,8 @@ $.fn.mauGallery.listeners = function(options) {
       next =
         imagesCollection[index] ||
         imagesCollection[imagesCollection.length - 1];
+        console.log(imagesCollection[index]);
+        console.log(imagesCollection[imagesCollection.length - 1]);
       
       // Met à jour l'attribut "src" de l'élément avec la classe "lightboxImage" dans la lightbox pour afficher l'image suivante.
       $(".lightboxImage").attr("src", $(next).attr("src"));
@@ -213,10 +215,14 @@ $.fn.mauGallery.listeners = function(options) {
         if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
           // code à corriger
           activeImage = $(this);
+          console.log(activeImage);
         }
       });
       let activeTag = $(".tags-bar span.active-tag").data("images-toggle");
+      console.log(activeTag);
+
       let imagesCollection = [];
+
       if (activeTag === "all") {
         console.log("test3a");
         // Si le tag actif est "all", collecte toutes les images des éléments ".item-column".
@@ -224,6 +230,7 @@ $.fn.mauGallery.listeners = function(options) {
           if ($(this).children("img").length) {
             imagesCollection.push($(this).children("img"));
             console.log("test3b");
+            console.log(imagesCollection);
           }
         });
       } else {
@@ -238,6 +245,7 @@ $.fn.mauGallery.listeners = function(options) {
           }
         });
       }
+
       let index = 0,
         next = null;
       
@@ -245,20 +253,34 @@ $.fn.mauGallery.listeners = function(options) {
       $(imagesCollection).each(function(i) {
         console.log("test3c");
         if ($(activeImage).attr("src") === $(this).attr("src")) {
+          console.log(this);
           console.log("test3d");
           index = i;
-          console.log("test3e");
+
         }
       });
+      console.log("test3e");
+      console.log(index);
+      console.log(imagesCollection[index]);
+      console.log('test7');
+      console.log(imagesCollection[imagesCollection.length + 1]);
+      console.log([imagesCollection.length + 1]);
       // Sélectionne l'image suivante en utilisant l'index.
       next = imagesCollection[index] || imagesCollection[0];
+      console.log(imagesCollection[index]);
+      console.log(imagesCollection[imagesCollection.length + 1]);
+      console.log(next);
       console.log("test3f");
+      console.log(imagesCollection[0]);
       
       // Met à jour l'attribut "src" de l'élément avec la classe "lightboxImage" dans la lightbox pour afficher l'image suivante.
       $(".lightboxImage").attr("src", $(next).attr("src"));
       console.log("test3g");
       console.log(index);
       console.log(imagesCollection[index]);
+      console.log(imagesCollection.length + 1);
+      console.log($(next).attr("src"));
+      console.log(activeImage);
     },
 
     // ouverture d'une modale pour la galerie d'images
