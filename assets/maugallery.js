@@ -143,7 +143,10 @@ $.fn.mauGallery.listeners = function(options) {
         element.addClass("img-fluid");
       }
     },
+
+    
     openLightBox(element, lightboxId) {
+      console.log("test1");
       // Cette fonction ouvre la lightbox en utilisant l'élément spécifié et l'ID de la lightbox.
       // Elle met à jour l'attribut "src" de l'élément avec la classe "lightboxImage" dans la lightbox pour afficher l'image correspondante.
       // Ensuite, elle utilise la méthode `.modal("toggle")` pour ouvrir ou fermer la lightbox.
@@ -155,6 +158,7 @@ $.fn.mauGallery.listeners = function(options) {
     prevImage() {
       // Cette fonction affiche l'image précédente dans la lightbox.
       let activeImage = null;
+      console.log("test2");
       // Recherche l'image active en parcourant toutes les images de classe "gallery-item".
       $("img.gallery-item").each(function() {
         if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
@@ -203,19 +207,23 @@ $.fn.mauGallery.listeners = function(options) {
     nextImage() {
       // Cette fonction affiche l'image suivante dans la lightbox.
       let activeImage = null;
+      console.log("test3");
       // Recherche l'image active en parcourant toutes les images de classe "gallery-item".
       $("img.gallery-item").each(function() {
         if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
+          // code à corriger
           activeImage = $(this);
         }
       });
       let activeTag = $(".tags-bar span.active-tag").data("images-toggle");
       let imagesCollection = [];
       if (activeTag === "all") {
+        console.log("test3a");
         // Si le tag actif est "all", collecte toutes les images des éléments ".item-column".
         $(".item-column").each(function() {
           if ($(this).children("img").length) {
             imagesCollection.push($(this).children("img"));
+            console.log("test3b");
           }
         });
       } else {
@@ -235,15 +243,22 @@ $.fn.mauGallery.listeners = function(options) {
       
       // Détermine l'index de l'image active dans la collection d'images.
       $(imagesCollection).each(function(i) {
+        console.log("test3c");
         if ($(activeImage).attr("src") === $(this).attr("src")) {
+          console.log("test3d");
           index = i;
+          console.log("test3e");
         }
       });
       // Sélectionne l'image suivante en utilisant l'index.
       next = imagesCollection[index] || imagesCollection[0];
+      console.log("test3f");
       
       // Met à jour l'attribut "src" de l'élément avec la classe "lightboxImage" dans la lightbox pour afficher l'image suivante.
       $(".lightboxImage").attr("src", $(next).attr("src"));
+      console.log("test3g");
+      console.log(index);
+      console.log(imagesCollection[index]);
     },
 
     // ouverture d'une modale pour la galerie d'images
