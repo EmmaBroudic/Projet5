@@ -1,0 +1,85 @@
+{
+    "name": "Site de présentation du travail et des services de la photographe Nina Carducci",
+    "short_name": "Nina Carducci - Photographe",
+    "start_url": "https://nina-carducci-photographe.com",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#6d503b",
+    "icons": [
+      {
+        "src": "assets/images/instagram.webp",
+        "sizes": "40x40",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/slider/portrait0_2x.webp",
+        "sizes": "1349x624",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/slider/concert0_2x.webp",
+        "sizes": "1349x624",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/slider/mariage0_2x.webp",
+        "sizes": "1349x624",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/nina.webp",
+        "sizes": "370x369",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/concerts/concert1.webp",
+        "sizes": "466x621",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/entreprise/entreprise1.webp",
+        "sizes": "466x699",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/entreprise/entreprise2.webp",
+        "sizes": "466x315",
+        "type": "image/webp"
+      }
+      {
+        "src": "./assets/images/gallery/mariage/mariage1.webp",
+        "sizes": "466x373",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/portraits/portrait1.webp",
+        "sizes": "466x698",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/mariage/mariage2.webp",
+        "sizes": "466x699",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/portraits/portrait2.webp",
+        "sizes": "466x700",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/concerts/concert2.webp",
+        "sizes": "466x311",
+        "type": "image/webp"
+      },
+      {
+        "src": "./assets/images/gallery/entreprise/entreprise3.webp",
+        "sizes": "466x285",
+        "type": "image/webp"
+      }
+      {
+        "src": "./assets/images/camera.webp",
+        "sizes": "359x358",
+        "type": "image/webp"
+      }
+    ]
+  }
