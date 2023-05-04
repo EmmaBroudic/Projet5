@@ -50,7 +50,10 @@ article {
 	padding-block: 100px;
 	position: relative;
 }
-
+img {
+	height: auto;
+	width: 100%;
+  }
 .picture.left::before {
 	content: ' ';
 	background-color: #E5975F;
