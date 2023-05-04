@@ -45,7 +45,7 @@
         "src": "./assets/images/gallery/entreprise/entreprise2.webp",
         "sizes": "466x315",
         "type": "image/webp"
-      }
+      },
       {
         "src": "./assets/images/gallery/mariage/mariage1.webp",
         "sizes": "466x373",
@@ -75,7 +75,7 @@
         "src": "./assets/images/gallery/entreprise/entreprise3.webp",
         "sizes": "466x285",
         "type": "image/webp"
-      }
+      },
       {
         "src": "./assets/images/camera.webp",
         "sizes": "359x358",
