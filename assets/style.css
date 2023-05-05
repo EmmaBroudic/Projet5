@@ -455,6 +455,8 @@ input[type="submit"] {
 		display: flex;
 		flex-direction: row;
 		justify-content: space-around;
+		margin-left: 10px;
+		margin-right: 10px;
 	}
 
 	header .nav ul {
@@ -493,6 +495,7 @@ input[type="submit"] {
 	.picture {
 		width: 55%;
 		height: auto;
+		margin: 20px;
 	}
 
 	#about-me__introduction {
@@ -573,11 +576,6 @@ input[type="submit"] {
 	#question {
 		font:'Spectral';
 		font-size: 18pt;
-	}
-
-	.picture.right::before {
-		width: 70%;
-		height: auto;
 	}
 
 	form {
