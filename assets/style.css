@@ -1,3 +1,5 @@
+/* css communs à l'affichage desktop, tablet et mobile*/
+
 body {
 	margin: auto;
 }
@@ -124,6 +126,8 @@ input[type="submit"] {
 	background-color: #BEB45A;
 	padding: .5em 1em
 }
+
+/* css propre à l'affichage en desktop*/
 
 @media screen and (min-width: 992px) and (max-width: 1920px) {
 
@@ -283,9 +287,10 @@ input[type="submit"] {
 	}
 }
 
+/* css propre à l'affichage sur tablet*/
+
 @media screen and (min-width: 651px) and (max-width: 991px) {
 
-	/* retravailler le bloc "about-me" - "services" et "contact"*/
 	.top-header {
 		background-color: white;
 		position: sticky;
@@ -388,7 +393,6 @@ input[type="submit"] {
 	
 	.service {
 		background-color: white;
-		/*max-width: 390px;*/
 		width: 80%;
 		height: auto;
 		padding: 1em;
@@ -431,6 +435,8 @@ input[type="submit"] {
 		width: 100%;
 	}
 }
+
+/* css propre à l'affichage sur mobile*/
 
 @media screen and (max-width: 650px) {
 
@@ -536,7 +542,6 @@ input[type="submit"] {
 	
 	.service {
 		background-color: white;
-		/*max-width: 390px;*/
 		width: 80%;
 		height: auto;
 		padding: 1em;
@@ -555,8 +560,6 @@ input[type="submit"] {
 		margin: auto;
 		background-color: #D8D3A8 ;
 		position: relative;
-		/*padding-inline: 100px;
-		padding-block: 100px;*/
 		padding-inline: 2em;
 		padding-block: 2em;
 	}
@@ -581,100 +584,3 @@ input[type="submit"] {
 		width: 100%;
 	}
 }
-
-
-
-
-
-
-/*
-
-@media all and (max-width: 1180px) {
-	.picture {
-		width: auto;
-		height: auto;
-		flex : 2;
-	}
-	#about, #contact .container {
-		align-items: center;
-	}
-	.about-me__title {
-		margin-top: 0;
-		margin-bottom: 1em;
-	}
-	#about-me h6, #about-me p {
-		width: 100%;
-	}
-}
-
-@media all and (max-width: 1000px) {
-	#about{
-		flex-direction: column;
-
-	}
-	.picture {
-		width: 50%;
-		height: auto;
-	}
-	.picture.left::before {
-		width: auto;
-		height: 150px;
-	}
-
-	#presentation {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		background-color: #F6D2B8;
-		padding-inline: 100px;
-		padding-block: 100px;
-	}
-
-	.about-me__title{
-		text-align: center;
-		margin-top: 1em;
-	}
-	#services .container {
-		flex-direction: column;
-	}
-	.service {
-		width: 100%;
-		max-width: 100%;
-		height: auto;
-		margin: 2em 0
-	}
-	.service__description{
-		margin-bottom: 1em;
-	}
-
-	#services .container::before{
-		width: 30%;
-		height: 100%;
-		bottom: 0;
-		right: 0;
-		left: auto;
-		z-index: 0;
-	}
-
-	#contact .container {
-		flex-direction: column;
-	}
-	#contact .picture.right {
-		width: auto;
-		height: auto;
-		margin-top: 1em;
-	}
-	.picture.right::before {
-		width: 100%;
-		height: 30%;
-		position: absolute;
-		bottom: 0;
-		right: 0;
-		z-index: -1;
-	}
-}*/
-
-@media all and (max-width: 650px) {
-	
-}
-
