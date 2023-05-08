@@ -23,14 +23,7 @@
 			"description": "Photographe à Bordeaux, je propose toutes sortes de prestations : portraits, visuels pour votre entreprise, albums de mariage.",
 			"email": "nina-carducci@photographe.com",
 			"telephone": "05 56 67 78 89"
-			"address": {
-				"@type": "PostalAddress",
-				"streetAddress": "68 avenue Alsace-Lorraine",
-				"addressLocality": "Bordeaux",
-				"addressRegion": "Nouvelle-Aquitaine",
-				"postalCode": "33200",
-				"addressCountry": "France",
-			  },
+			"address": {"@type": "PostalAddress","streetAddress":"68 avenue Alsace-Lorraine","addressLocality":"Bordeaux","addressRegion":"Nouvelle-Aquitaine","postalCode":"33200","addressCountry":"France"},
 			"sameAs": ["https://www.instagram.com/ninacarducci.photo/?hl=fr"],
 		}
 	</script>
@@ -267,7 +260,7 @@
 					<textarea name="message" id="message" cols="30" rows="10"></textarea>
 					<input type="submit" value="Envoyer"/>
 				</form>
-				<div itemprop=”address” itemscope itemtype=”https://schema.org/PostalAddress”>
+				<div itemprop=”PostalAddress” itemscope itemtype=”https://schema.org/PostalAddress”>
 					<span itemprop=”streetAddress”>3 rue des Jardins, </span>
 					<span itemprop=”postalCode”>33000</span>
 					<span itemprop=”addressRegion”>Bordeaux</span>
