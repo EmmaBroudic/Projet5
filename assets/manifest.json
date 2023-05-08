@@ -5,6 +5,16 @@
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#6d503b",
+    "address": {
+      "street": "68 avenue Alsace-Lorraine",
+      "city": "Bordeaux",
+      "region": "Nouvelle-Aquitaine",
+      "postal_code": "33200",
+      "country": "France"
+    },
+    "custom_fields": {
+      "phone_number": "05 56 67 78 89"
+    },
     "icons": [
       {
         "src": "assets/images/instagram.webp",

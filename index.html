@@ -9,6 +9,27 @@
 	<meta name="robots" content="">
 	<meta name="keywords" content="">
 	<title>Nina Carducci - Photographe à Bordeaux</title>
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "Person",
+			"name": "Nina Carducci",
+			"jobTitle": "Photographe",
+			"url": "https://nina-carducci-photographe.com",
+			"description": "Photographe à Bordeaux, je propose toutes sortes de prestations : portraits, visuels pour votre entreprise, albums de mariage.",
+			"email": "nina-carducci@photographe.com",
+			"telephone": "05 56 67 78 89"
+			"address": {
+				"@type": "PostalAddress",
+				"streetAddress": "68 avenue Alsace-Lorraine",
+				"addressLocality": "Bordeaux",
+				"addressRegion": "Nouvelle-Aquitaine",
+				"postalCode": "33200",
+				"addressCountry": "France"
+			  },
+			"sameAs": ["https://www.instagram.com/ninacarducci.photo/?hl=fr"]
+		}
+	</script>
 	<link rel="stylesheet" href="./assets/bootstrap/bootstrap.min.css">
 	<link rel="stylesheet" href="./assets/style.css">
 	<link rel="manifest" href="./assets/manifest.json">
@@ -242,6 +263,33 @@
 					<textarea name="message" id="message" cols="30" rows="10"></textarea>
 					<input type="submit" value="Envoyer"/>
 				</form>
+				<div itemprop=”address” itemscope itemtype=”http://schema.org/PostalAddress”>
+					<span itemprop=”streetAddress”>3 rue des Jardins, </span>
+					<span itemprop=”postalCode”>33000</span>
+					<span itemprop=”addressRegion”>Bordeaux</span>
+					<div itemprop="telephone">05 56 67 78 89</div>
+				</div>
+				<div itemprop="openingHoursSpecification" itemscope itemtype="https://schema.org/OpeningHoursSpecification">
+					<span itemprop="dayOfWeek" content="Monday">Lundi : </span>
+					<span itemprop="opens" content="09:00">10h - </span>
+					<span itemprop="closes" content="18:00">19h</span>
+					<br>
+					<span itemprop="dayOfWeek" content="Tuesday">Mardi : </span>
+					<span itemprop="opens" content="09:00">10h - </span>
+					<span itemprop="closes" content="18:00">19h</span>
+					<br>
+					<span itemprop="dayOfWeek" content="Tuesday">Mercredi : </span>
+					<span itemprop="opens" content="09:00">10h - </span>
+					<span itemprop="closes" content="18:00">19h</span>
+					<br>
+					<span itemprop="dayOfWeek" content="Tuesday">Jeudi : </span>
+					<span itemprop="opens" content="09:00">10h - </span>
+					<span itemprop="closes" content="18:00">19h</span>
+					<br>
+					<span itemprop="dayOfWeek" content="Tuesday">Vendredi : </span>
+					<span itemprop="opens" content="09:00">10h - </span>
+					<span itemprop="closes" content="18:00">19h</span>
+				</div>
 			</div>			
 			<div class="picture right">
 				<img
@@ -250,12 +298,6 @@
 				width="359" height="358"
 				class="d-block w-100"
 				alt="Appareil photo réflex Minolta">
-			</div>
-			<div itemprop=”address” itemscope itemtype=”http://schema.org/PostalAddress”>
-				<span itemprop=”streetAddress”>3 rue des Jardins</span>
-				<span itemprop=”addressLocality”>Bordeaux</span>,
-				<span itemprop=”addressRegion”> Bordeaux</span>
-				<span itemprop=”postalCode”>33000</span>
 			</div>
 		</div>
 
