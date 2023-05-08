@@ -1,7 +1,7 @@
 {
     "name": "Site de présentation du travail et des services de la photographe Nina Carducci",
     "short_name": "Nina Carducci - Photographe à Bordeaux",
-    "start_url": "https://nina-carducci-photographe.com",
+    "start_url": "https://beautiful-longma-d6e60e.netlify.app/",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#6d503b",

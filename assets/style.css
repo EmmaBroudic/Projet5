@@ -158,7 +158,7 @@ input[type="submit"] {
 		padding-inline: 10px;
 	}
 	
-	#presentation {
+	#about {
 		display: flex;
 		flex-direction: row;
 		background-color: #F6D2B8;
@@ -318,7 +318,7 @@ input[type="submit"] {
 		padding-inline: 10px;
 	}
 
-	#presentation {
+	#about {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -474,7 +474,7 @@ input[type="submit"] {
 		padding: 20px;
 	}
 
-	#presentation {
+	#about {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
